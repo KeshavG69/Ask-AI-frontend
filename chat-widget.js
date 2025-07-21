@@ -75,13 +75,13 @@
                 .chat-bubble {
                     width: 60px;
                     height: 60px;
-                    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+                    background: linear-gradient(135deg, #2563eb, #7c3aed);
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     cursor: pointer;
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
                     transition: all 0.3s ease;
                     position: relative;
                     overflow: hidden;
@@ -89,7 +89,7 @@
 
                 .chat-bubble:hover {
                     transform: scale(1.1);
-                    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+                    box-shadow: 0 6px 25px rgba(37, 99, 235, 0.4);
                 }
 
                 .chat-bubble::before {
@@ -154,7 +154,7 @@
 
                 /* Chat header */
                 .chat-header {
-                    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+                    background: linear-gradient(135deg, #2563eb, #7c3aed);
                     color: white;
                     padding: 20px;
                     display: flex;
@@ -548,9 +548,9 @@
                 }
 
                 .chat-input textarea:focus {
-                    border-color: #1a1a1a;
+                    border-color: #2563eb;
                     cursor: text;
-                    caret-color: #1a1a1a;
+                    caret-color: #2563eb;
                 }
 
                 .chat-input textarea::placeholder {
@@ -561,7 +561,7 @@
                 .send-btn {
                     width: 40px;
                     height: 40px;
-                    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+                    background: linear-gradient(135deg, #2563eb, #7c3aed);
                     border: none;
                     border-radius: 50%;
                     color: white;
