@@ -9,6 +9,7 @@
     // Default configuration
     const defaultConfig = {
         apiUrl: 'http://localhost:8000/chat',
+        proxyUrl: null, // New: Support for secure proxy URLs
         urls: [],
         companyName: 'Assistant',
         position: 'bottom-right',
@@ -1395,7 +1396,11 @@
             };
             
             try {
-                const response = await fetch(config.apiUrl, {
+                // Use proxyUrl if provided, otherwise use direct apiUrl
+                const endpoint = config.proxyUrl || config.apiUrl;
+                console.log(`Using endpoint: ${endpoint} (${config.proxyUrl ? 'proxy' : 'direct'})`);
+                
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

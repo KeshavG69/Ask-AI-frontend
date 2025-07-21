@@ -280,15 +280,25 @@
       // Initialize Lucide icons
       lucide.createIcons();
     </script>
-    <script src="https://navianai.vercel.app/chat-widget.js"></script>
+    <script src="chat-widget.js"></script>
     <script>
-        // Initialize the widget with your configuration
+        // SECURE PROXY ARCHITECTURE - Recommended for all customers
+        // This keeps your OpenAI API keys completely secure from end users
+        
         ChatWidget.init({
-            apiUrl: 'https://ask-ai-k50g.onrender.com/chat',           // Your backend API URL
-            urls: ['https://navianai.vercel.app/'],   // NavianAI knowledge base
-            companyName: 'NavianAI',                        // Your company name
-            autoOpen: false                                 // Set to true to auto-open on page load
+            proxyUrl: '/api/chat-proxy',                                    // Uses local deployed proxy
+            urls: ['https://navianai.vercel.app/'],                        // Knowledge base URLs
+            companyName: 'NavianAI',                                       // Company name
+            autoOpen: false                                                // Auto-open setting
         });
+        
+        // HOW TO SET UP YOUR OWN SECURE PROXY:
+        // 1. Deploy chat-proxy.js to Vercel: https://vercel.com
+        // 2. Set environment variable: OPENAI_API_KEY=your-api-key
+        // 3. Replace proxyUrl above with: https://your-app.vercel.app/api/chat-proxy
+        // 4. Your API keys stay secure on your server, never visible to users!
+        
+        // See SETUP-INSTRUCTIONS.md for detailed setup guide
     </script>
   </body>
 </html>
