@@ -53,10 +53,7 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // Import node-fetch for Node.js compatibility
-    const fetch = (await import('node-fetch')).default;
-    
-    // Forward request to NavianAI Python backend
+    // Forward request to NavianAI Python backend using built-in fetch
     const response = await fetch('https://ask-ai-k50g.onrender.com/chat', {
       method: 'POST',
       headers: {
@@ -74,22 +71,28 @@ export default async function handler(req, res) {
       });
     }
 
-    // Stream the response back to the client using Node.js streams
-    response.body.on('data', (chunk) => {
-      res.write(chunk);
-    });
+    // Stream the response using async iterator (compatible with Vercel)
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('Response body is not readable');
+    }
 
-    response.body.on('end', () => {
+    const decoder = new TextDecoder();
+    
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value, { stream: true });
+        res.write(chunk);
+      }
+      
       res.end();
       console.log('✅ Successfully streamed response');
-    });
-
-    response.body.on('error', (error) => {
-      console.error('❌ Stream error:', error);
-      if (!res.headersSent) {
-        res.status(500).json({ error: 'Stream error' });
-      }
-    });
+    } finally {
+      reader.releaseLock();
+    }
 
   } catch (error) {
     console.error('❌ Proxy error:', error);
