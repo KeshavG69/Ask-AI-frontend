@@ -541,10 +541,21 @@
                     outline: none;
                     transition: border-color 0.2s;
                     max-height: 100px;
+                    cursor: text;
+                    caret-color: #333;
+                    color: #333;
+                    background-color: #fff;
                 }
 
                 .chat-input textarea:focus {
                     border-color: #1a1a1a;
+                    cursor: text;
+                    caret-color: #1a1a1a;
+                }
+
+                .chat-input textarea::placeholder {
+                    color: #999;
+                    opacity: 1;
                 }
 
                 .send-btn {
@@ -935,6 +946,11 @@
                         releaseBufferedContent();
                     }
                     
+                    // Auto-close reasoning section now that streaming is complete
+                    if (streamingCoordinator.currentAiResponseDiv) {
+                        autoCloseReasoningSection(streamingCoordinator.currentAiResponseDiv);
+                    }
+                    
                     if (onComplete) onComplete();
                 }
             }
@@ -1062,8 +1078,8 @@
                 `;
                 aiResponseDiv.appendChild(contentDiv);
                 
-                // Auto-close reasoning section when actual content starts appearing
-                autoCloseReasoningSection(aiResponseDiv);
+                // Don't auto-close reasoning here - let it finish naturally
+                // The reasoning will be closed when it's actually complete
             }
             
             scrollToBottom();
