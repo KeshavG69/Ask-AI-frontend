@@ -602,6 +602,30 @@
                 .loading-dot:nth-child(1) { animation-delay: -0.32s; }
                 .loading-dot:nth-child(2) { animation-delay: -0.16s; }
 
+                /* Crawling loader */
+                .crawling-loader {
+                    padding: 20px;
+                    border-bottom: 1px solid #e9ecef;
+                    background: #f8f9fa;
+                }
+
+                .crawling-status {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 12px;
+                }
+
+                .crawling-text {
+                    font-size: 14px;
+                    color: #6c757d;
+                    font-weight: 500;
+                }
+
+                .crawling-loader .loading {
+                    padding: 0;
+                }
+
                 /* Streaming cursor */
                 .streaming-cursor {
                     color: #1a1a1a;
@@ -1069,6 +1093,29 @@
                     contentText.innerHTML = parseMarkdown(content);
                 }
             } else {
+                // 🎯 CONTENT IS NOW STARTING TO STREAM - TIME FOR "THINKING COMPLETE"!
+                console.log('🎯 Content starting to stream - marking thinking complete and closing reasoning!');
+                
+                // STOP any active reasoning word-by-word streaming immediately
+                clearActiveStreaming();
+                
+                // Mark reasoning as complete when content starts streaming
+                streamingCoordinator.reasoningActive = false;
+                
+                // Update reasoning header to show completion
+                const reasoningToggle = aiResponseDiv.querySelector('.reasoning-toggle h4');
+                if (reasoningToggle) {
+                    reasoningToggle.textContent = 'Thinking Complete';
+                }
+                
+                // IMMEDIATELY close reasoning section - don't wait for delays
+                const reasoningToggleElement = aiResponseDiv.querySelector('.reasoning-toggle');
+                const reasoningContent = aiResponseDiv.querySelector('.reasoning-content');
+                if (reasoningToggleElement && reasoningContent) {
+                    reasoningToggleElement.classList.remove('expanded');
+                    reasoningContent.classList.remove('expanded');
+                }
+                
                 // Create new content section and append after reasoning (if exists)
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'response-section content-section';
@@ -1078,9 +1125,6 @@
                     </div>
                 `;
                 aiResponseDiv.appendChild(contentDiv);
-                
-                // Don't auto-close reasoning here - let it finish naturally
-                // The reasoning will be closed when it's actually complete
             }
             
             scrollToBottom();
@@ -1458,30 +1502,8 @@
                                         streamData.content = chunk.full_content || chunk.text;
                                         streamData.isStreaming = true;
                                         
-                                        // 🎯 IMMEDIATELY STOP REASONING STREAMING AND CLOSE WHEN CONTENT ARRIVES
-                                        if (aiResponseContainer) {
-                                            console.log('🎯 Content arrived - stopping reasoning streaming and closing immediately!');
-                                            
-                                            // STOP any active reasoning word-by-word streaming immediately
-                                            clearActiveStreaming();
-                                            
-                                            // Mark reasoning as complete when content arrives
-                                            streamingCoordinator.reasoningActive = false;
-                                            
-                                            // Update reasoning header to show completion
-                                            const reasoningToggle = aiResponseContainer.querySelector('.reasoning-toggle h4');
-                                            if (reasoningToggle) {
-                                                reasoningToggle.textContent = 'Thinking Complete';
-                                            }
-                                            
-                                            // IMMEDIATELY close reasoning section - don't wait for delays
-                                            const reasoningToggleElement = aiResponseContainer.querySelector('.reasoning-toggle');
-                                            const reasoningContent = aiResponseContainer.querySelector('.reasoning-content');
-                                            if (reasoningToggleElement && reasoningContent) {
-                                                reasoningToggleElement.classList.remove('expanded');
-                                                reasoningContent.classList.remove('expanded');
-                                            }
-                                        }
+                                        // Content arrived - prepare for display
+                                        console.log('🎯 Content arrived - preparing for display');
                                         
                                         // 🎯 IF REASONING IS STILL STREAMING, ONLY BUFFER - DON'T DISPLAY!
                                         if (streamingCoordinator.reasoningActive) {
@@ -1530,8 +1552,36 @@
                                         break;
                                         
                                     case 'crawling':
-                                        // Show crawling status (optional UI feedback)
+                                        // Show crawling status with loader
                                         console.log(`🔍 ${chunk.message}`, chunk.urls);
+                                        
+                                        // Hide main loader and show crawling loader
+                                        if (!loaderHidden) {
+                                            hideLoading();
+                                            loaderHidden = true;
+                                            console.log('Loader smoothly transitioned to crawling');
+                                        }
+                                        
+                                        // Add crawling loader to the response
+                                        if (aiResponseContainer) {
+                                            let crawlingLoader = aiResponseContainer.querySelector('.crawling-loader');
+                                            if (!crawlingLoader) {
+                                                crawlingLoader = document.createElement('div');
+                                                crawlingLoader.className = 'crawling-loader';
+                                                crawlingLoader.innerHTML = `
+                                                    <div class="crawling-status">
+                                                        <div class="loading">
+                                                            <div class="loading-dot"></div>
+                                                            <div class="loading-dot"></div>
+                                                            <div class="loading-dot"></div>
+                                                        </div>
+                                                        <div class="crawling-text">Analyzing content...</div>
+                                                    </div>
+                                                `;
+                                                aiResponseContainer.appendChild(crawlingLoader);
+                                                scrollToBottom();
+                                            }
+                                        }
                                         break;
                                         
                                     case 'completion':
