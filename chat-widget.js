@@ -1536,6 +1536,15 @@
                                                 console.log('Loader smoothly transitioned to reasoning');
                                             }
                                             
+                                            // 🗑️ REMOVE CRAWLING LOADER when reasoning starts
+                                            if (aiResponseContainer) {
+                                                const crawlingLoader = aiResponseContainer.querySelector('.crawling-loader');
+                                                if (crawlingLoader) {
+                                                    console.log('🗑️ Removing crawling loader - reasoning phase started');
+                                                    crawlingLoader.remove();
+                                                }
+                                            }
+                                            
                                             streamData.reasoning.push(chunk.step);
                                             console.log(`✅ Added reasoning step: ${chunk.step.title} (Total: ${streamData.reasoning.length})`);
                                             
