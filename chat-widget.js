@@ -319,7 +319,7 @@
                 .reasoning-content {
                     max-height: 0;
                     overflow: hidden;
-                    transition: max-height 0.3s ease-out;
+                    transition: max-height 0.1s ease-out;
                     background: #f8f9fa;
                     border-bottom: 1px solid #e9ecef;
                 }
@@ -897,9 +897,9 @@
                     // Smooth scroll to content after reasoning closes
                     setTimeout(() => {
                         smoothScrollToContent(aiResponseDiv);
-                    }, 300); // Wait for collapse animation
+                    }, 100); // Wait for collapse animation
                     
-                }, 1000); // Wait 1 second after reasoning completes
+                }, 200); // Wait 200ms after reasoning completes
             }
         }
         
