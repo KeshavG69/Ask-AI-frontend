@@ -1458,10 +1458,29 @@
                                         streamData.content = chunk.full_content || chunk.text;
                                         streamData.isStreaming = true;
                                         
-                                        // 🎯 AUTO-CLOSE REASONING AS SOON AS CONTENT ARRIVES - EVEN IF REASONING IS STILL STREAMING
-                                        if (streamingCoordinator.reasoningActive && aiResponseContainer) {
-                                            console.log('🎯 Content arrived - auto-closing reasoning section while still streaming!');
-                                            autoCloseReasoningSection(aiResponseContainer);
+                                        // 🎯 IMMEDIATELY STOP REASONING STREAMING AND CLOSE WHEN CONTENT ARRIVES
+                                        if (aiResponseContainer) {
+                                            console.log('🎯 Content arrived - stopping reasoning streaming and closing immediately!');
+                                            
+                                            // STOP any active reasoning word-by-word streaming immediately
+                                            clearActiveStreaming();
+                                            
+                                            // Mark reasoning as complete when content arrives
+                                            streamingCoordinator.reasoningActive = false;
+                                            
+                                            // Update reasoning header to show completion
+                                            const reasoningToggle = aiResponseContainer.querySelector('.reasoning-toggle h4');
+                                            if (reasoningToggle) {
+                                                reasoningToggle.textContent = 'Thinking Complete';
+                                            }
+                                            
+                                            // IMMEDIATELY close reasoning section - don't wait for delays
+                                            const reasoningToggleElement = aiResponseContainer.querySelector('.reasoning-toggle');
+                                            const reasoningContent = aiResponseContainer.querySelector('.reasoning-content');
+                                            if (reasoningToggleElement && reasoningContent) {
+                                                reasoningToggleElement.classList.remove('expanded');
+                                                reasoningContent.classList.remove('expanded');
+                                            }
                                         }
                                         
                                         // 🎯 IF REASONING IS STILL STREAMING, ONLY BUFFER - DON'T DISPLAY!
