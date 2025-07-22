@@ -54,7 +54,7 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     // Forward request to NavianAI Python backend using built-in fetch
-    const response = await fetch('https://ask-ai-k50g.onrender.com/chat', {
+    const response = await fetch('ask-ai-production-5ced.up.railway.app/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
