@@ -912,12 +912,6 @@
                     reasoningToggle.classList.remove('expanded');
                     reasoningContent.classList.remove('expanded');
                     
-                    // Update header text to indicate completion
-                    const reasoningTitle = reasoningToggle.querySelector('h4');
-                    if (reasoningTitle) {
-                        reasoningTitle.textContent = 'Thinking Complete';
-                    }
-                    
                     // Smooth scroll to content after reasoning closes
                     setTimeout(() => {
                         smoothScrollToContent(aiResponseDiv);
