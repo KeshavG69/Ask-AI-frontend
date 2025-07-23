@@ -885,6 +885,7 @@
         
         // Synchronized streaming with content coordination
         let activeStreamingTimeouts = [];
+        let activeStreamingElements = []; // Track elements being streamed and their full text
         let streamingCoordinator = {
             reasoningActive: false,
             bufferedContent: null,
@@ -897,6 +898,21 @@
         function clearActiveStreaming() {
             activeStreamingTimeouts.forEach(timeout => clearTimeout(timeout));
             activeStreamingTimeouts = [];
+            activeStreamingElements = [];
+        }
+        
+        // Complete any active reasoning streaming immediately (don't leave it mid-way)
+        function completeActiveReasoningStreaming() {
+            // Complete all active streaming elements immediately
+            activeStreamingElements.forEach(({ element, fullText }) => {
+                if (element && fullText) {
+                    element.innerHTML = fullText;
+                }
+            });
+            
+            // Clear timeouts and reset tracking
+            clearActiveStreaming();
+            streamingCoordinator.reasoningActive = false;
         }
         
         // Auto-close reasoning section with smooth animation
@@ -944,6 +960,9 @@
             
             // Mark reasoning as active
             streamingCoordinator.reasoningActive = true;
+            
+            // Track this element for completion
+            activeStreamingElements.push({ element, fullText });
             
             function addNextWord() {
                 if (currentIndex < words.length) {
@@ -1082,10 +1101,10 @@
                 }
             } else {
                 // 🎯 CONTENT IS NOW STARTING TO STREAM - TIME FOR "THINKING COMPLETE"!
-                console.log('🎯 Content starting to stream - marking thinking complete and closing reasoning!');
+                console.log('🎯 Content starting to stream - completing reasoning and closing reasoning!');
                 
-                // STOP any active reasoning word-by-word streaming immediately
-                clearActiveStreaming();
+                // COMPLETE any active reasoning word-by-word streaming immediately (don't leave it mid-way)
+                completeActiveReasoningStreaming();
                 
                 // Mark reasoning as complete when content starts streaming
                 streamingCoordinator.reasoningActive = false;
