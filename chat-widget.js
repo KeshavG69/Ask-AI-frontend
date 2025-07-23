@@ -892,7 +892,8 @@
             bufferedSources: null,
             waitingForReasoning: false,
             currentAiResponseDiv: null,
-            fullReasoningData: [] // Store complete reasoning data for full population
+            fullReasoningData: [], // Store complete reasoning data for full population
+            streamingStopped: false // Flag to immediately stop word-by-word streaming
         };
         
         
@@ -904,6 +905,10 @@
         
         // Complete any active reasoning streaming immediately (don't leave it mid-way)
         function completeActiveReasoningStreaming() {
+            // IMMEDIATELY stop all word-by-word streaming
+            streamingCoordinator.streamingStopped = true;
+            console.log('🛑 Streaming stopped flag set - word-by-word streaming will halt');
+            
             // If we have the current AI response div, populate it with complete reasoning data
             if (streamingCoordinator.currentAiResponseDiv && streamingCoordinator.fullReasoningData.length > 0) {
                 const reasoningContentInner = streamingCoordinator.currentAiResponseDiv.querySelector('.reasoning-content-inner');
@@ -981,6 +986,13 @@
             activeStreamingElements.push({ element, fullText });
             
             function addNextWord() {
+                // 🛑 CHECK IF STREAMING WAS STOPPED (content arrived)
+                if (streamingCoordinator.streamingStopped) {
+                    console.log('🛑 Word-by-word streaming stopped mid-way - content arrived');
+                    // Don't continue streaming - the complete function will handle full display
+                    return;
+                }
+                
                 if (currentIndex < words.length) {
                     const currentText = words.slice(0, currentIndex + 1).join(' ');
                     element.innerHTML = currentText;
@@ -1455,6 +1467,7 @@
             streamingCoordinator.bufferedSources = null;
             streamingCoordinator.waitingForReasoning = false;
             streamingCoordinator.currentAiResponseDiv = null;
+            streamingCoordinator.streamingStopped = false; // Reset stop flag for new message
             clearActiveStreaming();
             
             // Show loading and track first content arrival
