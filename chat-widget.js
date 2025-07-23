@@ -965,10 +965,7 @@
                         releaseBufferedContent();
                     }
                     
-                    // Auto-close reasoning section now that streaming is complete
-                    if (streamingCoordinator.currentAiResponseDiv) {
-                        autoCloseReasoningSection(streamingCoordinator.currentAiResponseDiv);
-                    }
+                    // Note: Don't auto-close reasoning section here - it should only close when content starts streaming
                     
                     if (onComplete) onComplete();
                 }
