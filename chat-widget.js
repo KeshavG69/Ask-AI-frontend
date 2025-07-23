@@ -982,16 +982,13 @@
             
             console.log('Releasing buffered content after reasoning completion');
             
-            // Create new streamData with buffered content
-            const finalStreamData = {
-                reasoning: [], // Don't show reasoning again, it's already displayed
-                content: streamingCoordinator.bufferedContent,
-                sources: streamingCoordinator.bufferedSources || [],
-                isStreaming: false
-            };
+            // Use updateContentOnly to properly handle the transition from reasoning to content
+            updateContentOnly(streamingCoordinator.currentAiResponseDiv, streamingCoordinator.bufferedContent);
             
-            // Show the buffered content
-            updateAIResponseDirectly(streamingCoordinator.currentAiResponseDiv, finalStreamData);
+            // Add sources if available
+            if (streamingCoordinator.bufferedSources && streamingCoordinator.bufferedSources.length > 0) {
+                addSourcesOnly(streamingCoordinator.currentAiResponseDiv, streamingCoordinator.bufferedSources);
+            }
             
             // Reset coordination state
             streamingCoordinator.bufferedContent = null;
