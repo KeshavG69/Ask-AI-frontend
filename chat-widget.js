@@ -891,7 +891,8 @@
             bufferedContent: null,
             bufferedSources: null,
             waitingForReasoning: false,
-            currentAiResponseDiv: null
+            currentAiResponseDiv: null,
+            fullReasoningData: [] // Store complete reasoning data for full population
         };
         
         
@@ -903,12 +904,27 @@
         
         // Complete any active reasoning streaming immediately (don't leave it mid-way)
         function completeActiveReasoningStreaming() {
-            // Complete all active streaming elements immediately
-            activeStreamingElements.forEach(({ element, fullText }) => {
-                if (element && fullText) {
-                    element.innerHTML = fullText;
+            // If we have the current AI response div, populate it with complete reasoning data
+            if (streamingCoordinator.currentAiResponseDiv && streamingCoordinator.fullReasoningData.length > 0) {
+                const reasoningContentInner = streamingCoordinator.currentAiResponseDiv.querySelector('.reasoning-content-inner');
+                if (reasoningContentInner) {
+                    // Build complete reasoning HTML from full data
+                    const fullReasoningHTML = streamingCoordinator.fullReasoningData.map(step => 
+                        `<strong>${step.title}</strong><br>${step.thought || step.reasoning || ''}`
+                    ).join('<br><br>');
+                    
+                    // Set the complete reasoning content immediately
+                    reasoningContentInner.innerHTML = fullReasoningHTML;
+                    console.log('✅ Reasoning section populated with complete data');
                 }
-            });
+            } else {
+                // Fallback: Complete all active streaming elements immediately
+                activeStreamingElements.forEach(({ element, fullText }) => {
+                    if (element && fullText) {
+                        element.innerHTML = fullText;
+                    }
+                });
+            }
             
             // Clear timeouts and reset tracking
             clearActiveStreaming();
@@ -1432,6 +1448,15 @@
             messageInput.value = '';
             messageInput.style.height = 'auto';
             
+            // Reset streaming coordinator for new message
+            streamingCoordinator.fullReasoningData = [];
+            streamingCoordinator.reasoningActive = false;
+            streamingCoordinator.bufferedContent = null;
+            streamingCoordinator.bufferedSources = null;
+            streamingCoordinator.waitingForReasoning = false;
+            streamingCoordinator.currentAiResponseDiv = null;
+            clearActiveStreaming();
+            
             // Show loading and track first content arrival
             showLoading();
             console.log('Loader activated for smooth transition');
@@ -1563,6 +1588,10 @@
                                             
                                             streamData.reasoning.push(chunk.step);
                                             console.log(`✅ Added reasoning step: ${chunk.step.title} (Total: ${streamData.reasoning.length})`);
+                                            
+                                            // STORE COMPLETE REASONING DATA for full population when content arrives
+                                            streamingCoordinator.fullReasoningData.push(chunk.step);
+                                            console.log(`📚 Stored reasoning step for completion: ${chunk.step.title} (Total stored: ${streamingCoordinator.fullReasoningData.length})`);
                                             
                                             // Stream only the new step - don't rebuild everything
                                             try {
