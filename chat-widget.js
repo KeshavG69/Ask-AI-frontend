@@ -1499,6 +1499,15 @@
                                             console.log('Loader smoothly transitioned to content');
                                         }
                                         
+                                        // 🗑️ REMOVE CRAWLING LOADER when content starts
+                                        if (aiResponseContainer) {
+                                            const crawlingLoader = aiResponseContainer.querySelector('.crawling-loader');
+                                            if (crawlingLoader) {
+                                                console.log('🗑️ Removing crawling loader - content phase started');
+                                                crawlingLoader.remove();
+                                            }
+                                        }
+                                        
                                         streamData.content = chunk.full_content || chunk.text;
                                         streamData.isStreaming = true;
                                         
@@ -1594,6 +1603,15 @@
                                         break;
                                         
                                     case 'completion':
+                                        // 🗑️ REMOVE CRAWLING LOADER when completion occurs (fallback)
+                                        if (aiResponseContainer) {
+                                            const crawlingLoader = aiResponseContainer.querySelector('.crawling-loader');
+                                            if (crawlingLoader) {
+                                                console.log('🗑️ Removing crawling loader - completion phase (fallback)');
+                                                crawlingLoader.remove();
+                                            }
+                                        }
+                                        
                                         streamData.content = chunk.final_content || streamData.content;
                                         streamData.sources = chunk.sources || [];
                                         streamData.isStreaming = false;
