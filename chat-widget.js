@@ -476,6 +476,39 @@
                     font-weight: 600;
                 }
 
+                /* Professional markdown link styling */
+                .content-text a {
+                    color: #2563eb;
+                    text-decoration: none;
+                    border-bottom: 1px solid transparent;
+                    transition: all 0.2s ease;
+                    font-weight: 500;
+                    position: relative;
+                }
+
+                .content-text a:hover {
+                    color: #1d4ed8;
+                    border-bottom-color: #2563eb;
+                    background: rgba(37, 99, 235, 0.05);
+                    border-radius: 2px;
+                }
+
+                .content-text a:focus {
+                    outline: 2px solid #2563eb;
+                    outline-offset: 2px;
+                    border-radius: 2px;
+                }
+
+                .content-text a:visited {
+                    color: #7c3aed;
+                }
+
+                .content-text a:visited:hover {
+                    color: #6d28d9;
+                    border-bottom-color: #7c3aed;
+                    background: rgba(124, 58, 237, 0.05);
+                }
+
                 /* Markdown table styles */
                 .content-text .markdown-table {
                     width: 100%;
