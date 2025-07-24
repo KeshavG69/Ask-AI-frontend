@@ -15,6 +15,7 @@ NavianAI delivers smart AI support widgets that automatically answer customer qu
 - **Universal Compatibility**: Works with any website platform
 - **Professional Integration**: Custom implementation by AI experts
 
+
 ## Value Proposition
 ### Traditional AI Support Problems:
 - Costly vector database storage fees
