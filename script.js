@@ -25,7 +25,7 @@ document.getElementById('contact-form').addEventListener('submit', async functio
   
   try {
     // Send email using Formspree (free service for static sites)
-    const formspree = process.env.FORMPREE_URL ;
+    const formspree = "https://formspree.io/f/mzzvdkoz";
     const response = await fetch(formspree, {
       method: 'POST',
       headers: {
