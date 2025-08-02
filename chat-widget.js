@@ -193,9 +193,6 @@
     let activeStreamingElements = [];
     let streamingCoordinator = {
       reasoningActive: false,
-      bufferedContent: null,
-      bufferedSources: null,
-      waitingForReasoning: false,
       currentAiResponseDiv: null,
       fullReasoningData: [],
       streamingStopped: false,
@@ -328,28 +325,12 @@
         } else {
           element.innerHTML = fullText;
           streamingCoordinator.reasoningActive = false;
-          if (streamingCoordinator.waitingForReasoning && streamingCoordinator.currentAiResponseDiv) {
-            releaseBufferedContent();
-          }
           if (onComplete) onComplete();
         }
       }
       addNextWord();
     }
 
-    function releaseBufferedContent() {
-      if (!streamingCoordinator.currentAiResponseDiv || !streamingCoordinator.waitingForReasoning) {
-        return;
-      }
-      updateContentOnly(streamingCoordinator.currentAiResponseDiv, streamingCoordinator.bufferedContent);
-      if (streamingCoordinator.bufferedSources && streamingCoordinator.bufferedSources.length > 0) {
-        addSourcesOnly(streamingCoordinator.currentAiResponseDiv, streamingCoordinator.bufferedSources);
-      }
-      streamingCoordinator.bufferedContent = null;
-      streamingCoordinator.bufferedSources = null;
-      streamingCoordinator.waitingForReasoning = false;
-      streamingCoordinator.currentAiResponseDiv = null;
-    }
 
     function appendNewReasoningStep(aiResponseDiv, newStep, isFirstStep) {
       let reasoningContainer = aiResponseDiv.querySelector('.reasoning-container');
@@ -477,9 +458,6 @@
       streamingCoordinator = {
         fullReasoningData: [],
         reasoningActive: false,
-        bufferedContent: null,
-        bufferedSources: null,
-        waitingForReasoning: false,
         currentAiResponseDiv: null,
         streamingStopped: false,
       };
@@ -542,13 +520,28 @@
                     }
                     streamData.content = chunk.full_content || chunk.text;
                     streamData.isStreaming = true;
+                    
+                    // If reasoning is active, immediately close it and complete streaming
                     if (streamingCoordinator.reasoningActive) {
-                      streamingCoordinator.bufferedContent = streamData.content;
-                      streamingCoordinator.waitingForReasoning = true;
-                      streamingCoordinator.currentAiResponseDiv = aiResponseContainer;
-                    } else {
-                      updateContentOnly(aiResponseContainer, streamData.content);
+                      completeActiveReasoningStreaming();
+                      
+                      // Collapse the reasoning box
+                      const reasoningToggle = aiResponseContainer.querySelector('.reasoning-toggle');
+                      const reasoningContent = aiResponseContainer.querySelector('.reasoning-content');
+                      if (reasoningToggle && reasoningContent) {
+                        reasoningToggle.classList.remove('expanded');
+                        reasoningContent.classList.remove('expanded');
+                      }
+                      
+                      // Update reasoning header to show completion
+                      const reasoningTitle = aiResponseContainer.querySelector('.reasoning-toggle h4');
+                      if (reasoningTitle) {
+                        reasoningTitle.textContent = 'Thinking Complete';
+                      }
                     }
+                    
+                    // Always show content immediately, never buffer
+                    updateContentOnly(aiResponseContainer, streamData.content);
                     break;
 
                   case 'reasoning':
@@ -598,15 +591,29 @@
                     streamData.content = chunk.final_content || streamData.content;
                     streamData.sources = chunk.sources || [];
                     streamData.isStreaming = false;
+                    
+                    // If reasoning is still active, complete it immediately
                     if (streamingCoordinator.reasoningActive) {
-                      streamingCoordinator.bufferedContent = streamData.content;
-                      streamingCoordinator.bufferedSources = streamData.sources;
-                      streamingCoordinator.waitingForReasoning = true;
-                      streamingCoordinator.currentAiResponseDiv = aiResponseContainer;
-                    } else {
-                      updateContentOnly(aiResponseContainer, streamData.content);
-                      addSourcesOnly(aiResponseContainer, streamData.sources);
+                      completeActiveReasoningStreaming();
+                      
+                      // Collapse the reasoning box
+                      const reasoningToggle = aiResponseContainer.querySelector('.reasoning-toggle');
+                      const reasoningContent = aiResponseContainer.querySelector('.reasoning-content');
+                      if (reasoningToggle && reasoningContent) {
+                        reasoningToggle.classList.remove('expanded');
+                        reasoningContent.classList.remove('expanded');
+                      }
+                      
+                      // Update reasoning header to show completion
+                      const reasoningTitle = aiResponseContainer.querySelector('.reasoning-toggle h4');
+                      if (reasoningTitle) {
+                        reasoningTitle.textContent = 'Thinking Complete';
+                      }
                     }
+                    
+                    // Always update content and sources immediately
+                    updateContentOnly(aiResponseContainer, streamData.content);
+                    addSourcesOnly(aiResponseContainer, streamData.sources);
                     break;
 
                   case 'error':
